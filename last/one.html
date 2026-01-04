@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>City Lights Bookstore</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    header, footer {
+      background: #111827;
+      color: #f9fafb;
+      padding: 12px 24px;
+    }
+
+    header h1 { font-size: 1.6rem; margin-bottom: 4px; }
+
+    nav a {
+      color: #e5e7eb;
+      text-decoration: none;
+      margin-right: 12px;
+      font-size: 0.95rem;
+    }
+    nav a:hover { color: #60a5fa; }
+
+    main {
+      max-width: 900px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 20px 24px 28px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.12);
+    }
+
+    section { margin-bottom: 28px; }
+
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+      color: #1f2937;
+    }
+
+    h3 {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 1.05rem;
+      color: #374151;
+    }
+
+    p { margin-bottom: 6px; line-height: 1.5; }
+
+    ul, ol { margin-left: 20px; margin-bottom: 6px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    thead {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    .highlight-row { background: #fef3c7; }
+
+    audio, video { margin: 6px 0 10px; display: block; }
+
+    form input,
+    form select,
+    form textarea {
+      width: 100%;
+      padding: 6px 8px;
+      margin-top: 3px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font: inherit;
+    }
+
+    form input[type="submit"],
+    form input[type="reset"] {
+      width: auto;
+      background: #2563eb;
+      color: #f9fafb;
+      border: none;
+      padding: 6px 14px;
+      cursor: pointer;
+      margin-right: 6px;
+    }
+
+    form input[type="reset"] {
+      background: #6b7280;
+    }
+
+    form input[type="submit"]:hover { background: #1d4ed8; }
+    form input[type="reset"]:hover { background: #4b5563; }
+
+    #form-msg { margin-top: 4px; }
+
+    iframe { border-radius: 8px; border: none; }
+
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>City Lights Bookstore</h1>
+    <p>Your friendly neighbourhood book shop.</p>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#categories">Categories</a>
+      <a href="#bestsellers">Bestsellers</a>
+      <a href="#membership">Membership</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section>
+      <h2>Welcome</h2>
+      <p>
+        City Lights Bookstore is a small local shop that offers a curated collection
+        of fiction, non‑fiction, competitive exam guides and children’s books.
+      </p>
+
+      <h3>Why visit our shop?</h3>
+      <ul>
+        <li>Handpicked titles recommended by readers.</li>
+        <li>Comfortable reading corner with free Wi‑Fi.</li>
+        <li>Student discounts on academic books.</li>
+      </ul>
+
+      <h3>Quick steps to buy a book</h3>
+      <ol>
+        <li>Browse the shelves or ask staff for help.</li>
+        <li>Check price and available offers.</li>
+        <li>Pay at the billing counter and collect your bill.</li>
+      </ol>
+    </section>
+
+    <section id="categories">
+      <h2>Book Categories</h2>
+      <ul>
+        <li>Fiction and Literature</li>
+        <li>Science &amp; Technology</li>
+        <li>Competitive Exams &amp; Programming</li>
+        <li>Children’s Books &amp; Comics</li>
+        <li>Self‑Help &amp; Biographies</li>
+      </ul>
+    </section>
+
+    <section id="bestsellers">
+      <h2>Today’s Bestsellers</h2>
+      <table id="books-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Price (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Clean Code</td>
+            <td>Robert C. Martin</td>
+            <td>Programming</td>
+            <td>799</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>The Alchemist</td>
+            <td>Paulo Coelho</td>
+            <td>Fiction</td>
+            <td>399</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Atomic Habits</td>
+            <td>James Clear</td>
+            <td>Self‑Help</td>
+            <td>499</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Introduction to Algorithms</td>
+            <td>Cormen et al.</td>
+            <td>Computer Science</td>
+            <td>999</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Listen &amp; Watch</h2>
+      <p>Short background music used in our store:</p>
+      <audio controls>
+        <source src="sample-music.mp3" type="audio/mpeg">
+        Your browser does not support the audio tag.
+      </audio>
+
+      <p>Author talk highlight:</p>
+      <video width="320" controls>
+        <source src="author-talk.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </section>
+
+    <section id="membership">
+      <h2>Membership Form</h2>
+      <form id="membership-form">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="fav">Favourite Category:</label>
+        <select id="fav" name="fav">
+          <option>Fiction</option>
+          <option>Programming</option>
+          <option>Self‑Help</option>
+          <option>Children</option>
+        </select>
+
+        <label>
+          <input type="checkbox" id="newsletter" name="newsletter" checked>
+          Send me weekly book updates.
+        </label>
+
+        <input type="submit" value="Register">
+        <input type="reset" value="Clear">
+      </form>
+
+      <p id="form-msg" style="color:#16a34a;"></p>
+    </section>
+
+    <section id="contact">
+      <h2>Contact &amp; Location</h2>
+      <p>
+        City Lights Bookstore,<br>
+        Main Market Road,<br>
+        Your City, India<br>
+        Phone: +91‑98765‑43210
+      </p>
+
+      <h3>Find us on the map</h3>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241317.11610092373!2d72.74109999999999!3d19.0821978!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sLocal%20Bookstore!5e0!3m2!1sen!2sin!4v0000000000000"
+        width="100%"
+        height="250"
+        loading="lazy">
+      </iframe>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 City Lights Bookstore. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const rows = document.querySelectorAll("#books-table tbody tr");
+    rows.forEach(row => {
+      const price = parseInt(row.cells[4].textContent, 10);
+      if (price >= 800) {
+        row.classList.add("highlight-row");
+      }
+    });
+
+    const form = document.getElementById("membership-form");
+    const msg = document.getElementById("form-msg");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      msg.textContent = "Thank you, " + name + "! Your membership request has been recorded.";
+      form.reset();
+    });
+  </script>
+
+</body>
+</html>

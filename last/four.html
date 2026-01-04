@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Durg Stationery Shop - ES6 + API</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; }
+    header { background: #0d6efd; color: #fff; padding: 1rem; text-align: center; }
+    header h1 { margin-bottom: 0.25rem; }
+    main { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
+    .top-bar { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; margin-bottom: 1rem; }
+    .search-box input { padding: 0.5rem; min-width: 220px; border-radius: 4px; border: 1px solid #ccc; }
+    select { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card img { width: 100%; height: 170px; object-fit: cover; }
+    .card-body { padding: 0.75rem; flex: 1; display: flex; flex-direction: column; }
+    .card-title { font-size: 1rem; font-weight: bold; margin-bottom: 0.25rem; }
+    .card-category { font-size: 0.85rem; color: #666; margin-bottom: 0.25rem; }
+    .card-price { font-weight: bold; color: #198754; margin-top: auto; }
+    .card button {
+      margin-top: 0.5rem;
+      background: #198754;
+      color: #fff;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+    .layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    #cart {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1rem;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    #cart h2 { margin-bottom: 0.5rem; }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+    .cart-controls { display: flex; align-items: center; gap: 0.25rem; }
+    .cart-controls button {
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+    .cart-controls input {
+      width: 40px;
+      text-align: center;
+      padding: 0.2rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #total { margin-top: 0.75rem; font-weight: bold; color: #198754; }
+    #status { margin-top: 0.5rem; font-size: 0.85rem; color: #555; }
+    #clearCart {
+      margin-top: 0.75rem;
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #222;
+      color: #fff;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      #cart { order: -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Durg Stationery Shop</h1>
+    <p id="headerSubtitle">Pens, notebooks, office supplies – ES6 + API demo</p>
+  </header>
+
+  <main>
+    <div class="top-bar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search stationery items..." />
+      </div>
+      <div>
+        <select id="categorySelect">
+          <option value="all">All Categories</option>
+        </select>
+        <select id="sortSelect">
+          <option value="default">Sort: Default</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section>
+        <div id="products" class="products"></div>
+        <p id="status"></p>
+      </section>
+
+      <aside id="cart">
+        <h2>Stationery Cart</h2>
+        <div id="cartItems"></div>
+        <div id="total">Total: ₹0</div>
+        <button id="clearCart">Clear Cart</button>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 Durg Stationery Shop – Built with ES6, Fetch API, and DOM manipulation.
+  </footer>
+
+  <script>
+    // ======= STATE =======
+    let products = [];
+    let filteredProducts = [];
+    const cart = new Map();
+
+    const productsContainer = document.getElementById('products');
+    const statusEl = document.getElementById('status');
+    const categorySelect = document.getElementById('categorySelect');
+    const sortSelect = document.getElementById('sortSelect');
+    const searchInput = document.getElementById('searchInput');
+    const cartItemsEl = document.getElementById('cartItems');
+    const totalEl = document.getElementById('total');
+    const clearCartBtn = document.getElementById('clearCart');
+
+    // ======= FETCH API (DummyJSON) =======
+    const fetchProducts = async () => {
+      try {
+        statusEl.textContent = 'Loading stationery items...';
+        const res = await fetch('https://dummyjson.com/products?limit=50');
+        const data = await res.json();
+        const all = data.products || [];
+
+        // Filter to look like stationery / office items
+        products = all.filter(p =>
+          p.category.toLowerCase().includes('home') ||
+          p.category.toLowerCase().includes('furniture') ||
+          p.category.toLowerCase().includes('laptops') ||
+          p.category.toLowerCase().includes('smartphones')
+        );
+        filteredProducts = [...products];
+
+        buildCategoryOptions(products);
+        renderProducts();
+        statusEl.textContent = `Loaded ${products.length} stationery items from API.`;
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Failed to load items. Check internet connection.';
+      }
+    };
+
+    // ======= DOM helpers =======
+    const buildCategoryOptions = (items) => {
+      const categories = Array.from(new Set(items.map(p => p.category)));
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+    };
+
+    const createProductCard = (product) => {
+      const { id, title, price, category, thumbnail } = product;
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${thumbnail}" alt="${title}">
+        <div class="card-body">
+          <div class="card-title">${title}</div>
+          <div class="card-category">${category}</div>
+          <div class="card-price">₹${price}</div>
+          <button data-id="${id}">Add to Cart</button>
+        </div>
+      `;
+      return card;
+    };
+
+    const renderProducts = () => {
+      productsContainer.innerHTML = '';
+      if (filteredProducts.length === 0) {
+        productsContainer.textContent = 'No stationery items match your filters.';
+        return;
+      }
+      for (const product of filteredProducts) {
+        productsContainer.appendChild(createProductCard(product));
+      }
+    };
+
+    // ======= CART LOGIC =======
+    const renderCart = () => {
+      cartItemsEl.innerHTML = '';
+      if (cart.size === 0) {
+        cartItemsEl.textContent = 'Cart is empty.';
+        totalEl.textContent = 'Total: ₹0';
+        return;
+      }
+
+      let total = 0;
+      cart.forEach((item, id) => {
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+        row.innerHTML = `
+          <span>${item.title} (₹${item.price})</span>
+          <div class="cart-controls">
+            <button data-action="dec" data-id="${id}">-</button>
+            <input type="number" min="1" value="${item.qty}" data-id="${id}">
+            <button data-action="inc" data-id="${id}">+</button>
+            <button data-action="remove" data-id="${id}">x</button>
+          </div>
+        `;
+        cartItemsEl.appendChild(row);
+        total += item.price * item.qty;
+      });
+
+      if (total > 500) total *= 0.9; // discount rule
+      totalEl.textContent = `Total: ₹${Math.round(total)}`;
+    };
+
+    const addToCart = (product) => {
+      const existing = cart.get(product.id);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.set(product.id, { ...product, qty: 1 });
+      }
+      renderCart();
+    };
+
+    const updateCartQty = (id, changeOrValue) => {
+      const item = cart.get(id);
+      if (!item) return;
+
+      if (typeof changeOrValue === 'number') {
+        item.qty += changeOrValue;
+      } else {
+        const parsed = parseInt(changeOrValue, 10);
+        item.qty = Number.isNaN(parsed) || parsed < 1 ? 1 : parsed;
+      }
+
+      if (item.qty < 1) cart.delete(id);
+      renderCart();
+    };
+
+    const removeFromCart = (id) => {
+      cart.delete(id);
+      renderCart();
+    };
+
+    // ======= FILTERING & SORTING =======
+    const applyFilters = () => {
+      const query = searchInput.value.toLowerCase();
+      const cat = categorySelect.value;
+      const sort = sortSelect.value;
+
+      filteredProducts = products.filter(p => {
+        const matchesText =
+          p.title.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query);
+        const matchesCategory = cat === 'all' || p.category === cat;
+        return matchesText && matchesCategory;
+      });
+
+      if (sort === 'price-asc') {
+        filteredProducts.sort((a, b) => a.price - b.price);
+      } else if (sort === 'price-desc') {
+        filteredProducts.sort((a, b) => b.price - a.price);
+      }
+
+      renderProducts();
+    };
+
+    // ======= EVENT HANDLING =======
+    productsContainer.addEventListener('click', (event) => {
+      if (event.target.tagName === 'BUTTON') {
+        const id = Number(event.target.dataset.id);
+        const product = products.find(p => p.id === id);
+        if (product) addToCart(product);
+      }
+    });
+
+    cartItemsEl.addEventListener('click', (event) => {
+      const { action, id } = event.target.dataset;
+      if (!action || !id) return;
+      const numericId = Number(id);
+
+      if (action === 'inc') updateCartQty(numericId, +1);
+      if (action === 'dec') updateCartQty(numericId, -1);
+      if (action === 'remove') removeFromCart(numericId);
+    });
+
+    cartItemsEl.addEventListener('change', (event) => {
+      if (event.target.tagName === 'INPUT') {
+        const id = Number(event.target.dataset.id);
+        updateCartQty(id, event.target.value);
+      }
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+    categorySelect.addEventListener('change', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+    clearCartBtn.addEventListener('click', () => {
+      cart.clear();
+      renderCart();
+    });
+
+    // Greeting text
+    const setGreeting = () => {
+      const hour = new Date().getHours();
+      let message = 'Welcome to Durg Stationery Shop';
+      if (hour < 12) message = 'Good morning, get your notebooks and pens!';
+      else if (hour < 18) message = 'Good afternoon, office supplies on discount!';
+      else message = 'Good evening, study essentials for night owls!';
+      document.getElementById('headerSubtitle').textContent = message;
+    };
+
+    // ======= INIT =======
+    setGreeting();
+    fetchProducts();
+  </script>
+</body>
+</html>

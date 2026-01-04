@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Durg Local Shop - Grocery & Clothing</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f4f4f4; }
+    header { background: #28a745; color: white; text-align: center; padding: 1rem; }
+    nav { background: #007bff; padding: 0.5rem; text-align: center; }
+    nav button {
+      background: white;
+      color: #007bff;
+      border: none;
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    nav button.active { background: #007bff; color: white; }
+    main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .product {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .product img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .product h3 { margin: 0.5rem 0; }
+    .product p { margin-bottom: 0.5rem; }
+    .product button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      width: 100%;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #cart {
+      background: white;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #ddd;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .cart-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .cart-controls button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .cart-controls input {
+      width: 40px;
+      text-align: center;
+    }
+    #total {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #28a745;
+      margin-top: 1rem;
+    }
+    #clear-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 600px) {
+      .products { grid-template-columns: 1fr; }
+      main { padding: 0 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Durg Local Shop</h1>
+    <p>Grocery & Clothing | Responsive Demo</p>
+  </header>
+
+  <nav>
+    <button onclick="showCategory(event, 'grocery')" class="active">Grocery</button>
+    <button onclick="showCategory(event, 'clothing')">Clothing</button>
+  </nav>
+
+  <main>
+    <section id="products" class="products"></section>
+
+    <section id="cart">
+      <h2>Shopping Cart</h2>
+      <div id="cart-items"></div>
+      <div id="total">Total: ₹0</div>
+      <button id="clear-btn" onclick="clearCart()">Clear Cart</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Durg Shop. Built with HTML, CSS & JavaScript.</p>
+  </footer>
+
+  <script>
+    // ====== DATA (JS BASICS) ======
+    const categories = {
+      grocery: [
+        { id: 1, name: 'Apple', price: 50, img: 'https://placehold.co/200x150/28a745/ffffff?text=Apple' },
+        { id: 2, name: 'Salt',  price: 20, img: 'https://placehold.co/200x150/ffc107/000000?text=Salt' },
+        { id: 3, name: 'Rice',  price: 80, img: 'https://placehold.co/200x150/d4edda/155724?text=Rice' }
+      ],
+      clothing: [
+        { id: 4, name: 'T-Shirt', price: 300, img: 'https://placehold.co/200x150/007bff/ffffff?text=T-Shirt' },
+        { id: 5, name: 'Pants',   price: 500, img: 'https://placehold.co/200x150/dc3545/ffffff?text=Pants' },
+        { id: 6, name: 'Shirt',   price: 400, img: 'https://placehold.co/200x150/17a2b8/ffffff?text=Shirt' }
+      ]
+    };
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let currentCategory = 'grocery';
+
+    // ====== CATEGORY SWITCH (FUNCTION + DOM) ======
+    function showCategory(evt, cat) {
+      currentCategory = cat;
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      evt.target.classList.add('active');
+      renderProducts();
+    }
+
+    // ====== RENDER PRODUCTS (DOM MANIPULATION) ======
+    function renderProducts() {
+      const container = document.getElementById('products');
+      container.innerHTML = '';
+      categories[currentCategory].forEach(product => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.innerHTML = `
+          <img src="${product.img}" alt="${product.name}">
+          <h3>${product.name}</h3>
+          <p>Price: ₹${product.price}</p>
+          <button onclick="addToCart(${product.id})">Add to Cart</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ====== ADD TO CART (FUNCTION + CONTROL FLOW) ======
+    function addToCart(id) {
+      const allProducts = [...categories.grocery, ...categories.clothing];
+      const product = allProducts.find(p => p.id === id);
+      const existing = cart.find(item => item.id === id);
+
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      updateCart();
+    }
+
+    // ====== UPDATE CART (FULL DOM REBUILD) ======
+    function updateCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      const container = document.getElementById('cart-items');
+      container.innerHTML = '';
+
+      let total = 0;
+      cart.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <span>${item.name} - ₹${item.price}</span>
+          <div class="cart-controls">
+            <button onclick="changeQty(${index}, -1)">-</button>
+            <input type="number" value="${item.qty}" min="1" onchange="setQty(${index}, this.value)">
+            <button onclick="changeQty(${index}, 1)">+</button>
+            <button onclick="removeItem(${index})">Remove</button>
+          </div>
+        `;
+        container.appendChild(div);
+        total += item.price * item.qty;
+      });
+
+      // Control flow example: discount for big orders
+      if (total > 500) {
+        total *= 0.9; // 10% discount
+      }
+
+      document.getElementById('total').textContent = `Total: ₹${Math.round(total)}`;
+    }
+
+    // ====== CHANGE / SET QUANTITY ======
+    function changeQty(index, delta) {
+      let qty = cart[index].qty + delta;
+      if (qty < 1) {
+        removeItem(index);
+        return;
+      }
+      cart[index].qty = qty;
+      updateCart();
+    }
+
+    function setQty(index, value) {
+      let qty = parseInt(value) || 1;
+      if (qty < 1) qty = 1;
+      cart[index].qty = qty;
+      updateCart();
+    }
+
+    // ====== REMOVE & CLEAR CART ======
+    function removeItem(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function clearCart() {
+      cart = [];
+      updateCart();
+    }
+
+    // ====== GREETING (BASICS + IF/ELSE) ======
+    function setGreeting() {
+      const now = new Date();
+      const hour = now.getHours();
+      let greet = 'Good day!';
+      if (hour < 12) greet = 'Good morning!';
+      else if (hour < 17) greet = 'Good afternoon!';
+      document.querySelector('header p').textContent += ' - ' + greet;
+    }
+
+    // ====== INITIALIZE PAGE ======
+    window.addEventListener('DOMContentLoaded', () => {
+      setGreeting();
+      renderProducts();
+      updateCart();
+    });
+  </script>
+</body>
+</html>
